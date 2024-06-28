@@ -13,8 +13,8 @@ app.use(express.urlencoded({ limit: "30mb", extended: true }));
 
 app.use(cors());
 
-const CONNECTION_URL =
-  "mongodb+srv://demoemail1428:Kwabena03@black001.ngmuy86.mongodb.net/?retryWrites=true&w=majority&appName=Black001";
+const CONNECTION_URL = "";
+  
 const PORT = process.env.PORT || 5000;
 
 mongoose
