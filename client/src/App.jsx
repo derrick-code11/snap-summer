@@ -1,8 +1,8 @@
 import { Container, AppBar, Typography, Grow, Grid } from "@mui/material";
-import Posts from "./components/Posts";
+import Posts from "./components/Posts.jsx";
 import Form from "./components/Form";
 import logo from "./images/camera.png";
-import "./index.css"
+import "./index.css";
 
 function App() {
   return (
@@ -22,7 +22,7 @@ function App() {
         >
           <Typography
             sx={{
-              color: "rgba(0,183,255, 1)",
+              color: "rgba(25,25,112, 0.6)",
             }}
             variant="h2"
             align="center"
