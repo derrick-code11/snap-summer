@@ -12,10 +12,11 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
-    "@mui/icons-material": "^5.15.20",
+    "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.20",
     "@reduxjs/toolkit": "^2.2.6",
     "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
     "filepond": "^4.31.1",
     "filepond-plugin-image-preview": "^4.6.12",
     "moment": "^2.30.1",
