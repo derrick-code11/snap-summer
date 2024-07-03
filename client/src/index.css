@@ -1,15 +1,40 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
+
 * {
-  margin: 0;
-  padding: 0;
+  margin: 0px;
+  padding: 0px;
   box-sizing: border-box;
 }
 
 body {
-  font-family: "Poppins", sans-serif;
+  font-family: "Rubik";
   line-height: 1;
+  height: 100vh;
 }
 
 html {
   scroll-behavior: smooth;
+}
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.background-image {
+  animation: fade 0.5s ease-in-out;
+}
+
+.home-background {
+  background-image: url("./images/home-background.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  z-index: -1;
 }
