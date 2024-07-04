@@ -1,8 +1,18 @@
 import { Container, Typography, Button, Box } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+  const navigate = useNavigate();
+
+  const handleSignup = () => {
+    navigate("/signup");
+  };
+
+  const handleLogin = () => {
+    navigate("/login");
+  };
   return (
-    <div className="home-background">
+    <div className="background home">
       <Container
         maxWidth="sm"
         sx={{
@@ -32,9 +42,16 @@ const Home = () => {
         </Typography>
         <Box sx={{ display: "flex", gap: 2, mt: 3 }}>
           <Button
-            sx={{ backgroundColor: "green", borderRadius: "30px" }}
+            sx={{
+              backgroundColor: "green",
+              borderRadius: "30px",
+              "&:hover": {
+                backgroundColor: "darkgreen",
+              },
+            }}
             variant="contained"
             size="large"
+            onClick={handleLogin}
           >
             Login
           </Button>
@@ -42,6 +59,7 @@ const Home = () => {
             sx={{ backgroundColor: "#4888F4", borderRadius: "30px" }}
             variant="contained"
             size="large"
+            onClick={handleSignup}
           >
             Sign Up
           </Button>
