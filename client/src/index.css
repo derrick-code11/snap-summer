@@ -28,8 +28,7 @@ html {
   animation: fade 0.5s ease-in-out;
 }
 
-.home-background {
-  background-image: url("./images/home-background.svg");
+.background {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -37,4 +36,15 @@ html {
   width: 100%;
   position: absolute;
   z-index: -1;
+}
+
+.home{
+  background-image: url("./images/home-background.svg");
+  z-index: 1;
+}
+
+.signup, .login{
+  margin: 85px auto;
+  z-index: 1;
+  background-image: url("./images/login-background.svg");
 }
