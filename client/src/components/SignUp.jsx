@@ -14,7 +14,26 @@ import { useState } from "react";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { Formik, Form, Field } from "formik";
+import * as Yup from "yup";
+import axios from "axios";
 import { FcGoogle } from "react-icons/fc";
+
+const SignUpSchema = Yup.object().shape({
+  firstName: Yup.string()
+    .max(50, "Too Long!")
+    .required("Enter your first name"),
+  lastName: Yup.string().max(50, "Too Long!").required("Enter your last name"),
+  email: Yup.string()
+    .email("Invalid email")
+    .required("Enter your email address"),
+  password: Yup.string()
+    .required("Enter your password")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/,
+      "Password should be at least 8 chars with an uppercase, a lowercase, a digit, and a special character"
+    ),
+});
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -22,9 +41,16 @@ const SignUp = () => {
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log("Sign up form submitted");
+
+  // work on this later
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      const response = await axios.post("/api/register", values);
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+    setSubmitting(false);
   };
 
   const handleGoogleSignUp = () => {
@@ -49,98 +75,122 @@ const SignUp = () => {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <Box
-            component="form"
-            noValidate
+          <Formik
+            initialValues={{
+              firstName: "",
+              lastName: "",
+              email: "",
+              password: "",
+            }}
+            validationSchema={SignUpSchema}
             onSubmit={handleSubmit}
-            sx={{ mt: 3 }}
           >
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  autoComplete="given-name"
-                  name="firstName"
-                  required
+            {({ errors, touched, isSubmitting }) => (
+              <Form>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <Field
+                      as={TextField}
+                      autoComplete="given-name"
+                      name="firstName"
+                      required
+                      fullWidth
+                      id="firstName"
+                      label="First Name"
+                      autoFocus
+                      helperText={touched.firstName ? errors.firstName : ""}
+                      error={touched.firstName && Boolean(errors.firstName)}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Field
+                      as={TextField}
+                      required
+                      fullWidth
+                      id="lastName"
+                      label="Last Name"
+                      name="lastName"
+                      autoComplete="family-name"
+                      helperText={touched.lastName ? errors.lastName : ""}
+                      error={touched.lastName && Boolean(errors.lastName)}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Field
+                      as={TextField}
+                      required
+                      fullWidth
+                      id="email"
+                      label="Email Address"
+                      name="email"
+                      autoComplete="email"
+                      helperText={touched.email ? errors.email : ""}
+                      error={touched.email && Boolean(errors.email)}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Field
+                      as={TextField}
+                      required
+                      fullWidth
+                      name="password"
+                      label="Password"
+                      type={showPassword ? "text" : "password"}
+                      id="password"
+                      autoComplete="new-password"
+                      helperText={touched.password ? errors.password : ""}
+                      error={touched.password && Boolean(errors.password)}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={handleClickShowPassword}
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                              }}
+                              edge="end"
+                            >
+                              {showPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+                <Button
+                  type="submit"
                   fullWidth
-                  id="firstName"
-                  label="First Name"
-                  autoFocus
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  required
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                  disabled={isSubmitting}
+                >
+                  Sign Up
+                </Button>
+                <Button
                   fullWidth
-                  id="lastName"
-                  label="Last Name"
-                  name="lastName"
-                  autoComplete="family-name"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  autoComplete="new-password"
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="toggle password visibility"
-                          onClick={handleClickShowPassword}
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                          }}
-                          edge="end"
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-            </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign Up
-            </Button>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<FcGoogle />}
-              sx={{ mb: 2 }}
-              onClick={handleGoogleSignUp}
-            >
-              Sign Up with Google
-            </Button>
-            <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link href="#" variant="body2">
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
-            </Grid>
-          </Box>
+                  variant="outlined"
+                  startIcon={<FcGoogle />}
+                  sx={{ mb: 2 }}
+                  onClick={handleGoogleSignUp}
+                >
+                  Sign Up with Google
+                </Button>
+                <Grid container justifyContent="flex-end">
+                  <Grid item>
+                    <Link href="/login" variant="body2">
+                      Already have an account? Sign in
+                    </Link>
+                  </Grid>
+                </Grid>
+              </Form>
+            )}
+          </Formik>
         </Box>
       </Container>
     </div>
