@@ -4,10 +4,11 @@ import cors from "cors";
 import dotenv from "dotenv";
 import postRoutes from "./routes/posts.js";
 
+dotenv.config();
+
 const app = express();
 
 app.use(cors());
-dotenv.config();
 
 // Parse application/json
 app.use(express.json({ limit: "30mb", extended: true }));
@@ -17,11 +18,22 @@ app.use(express.urlencoded({ limit: "30mb", extended: true }));
 
 const PORT = process.env.PORT || 5000;
 
-app.get("/", (req, res) => {
+app.get("/api/v1", (req, res) => {
   res.send("Welcome to SnapSummer API");
 });
 
-app.use("/posts", postRoutes);
+app.use("/api/v1/posts", postRoutes);
+
+// Catch-all route for undefined routes
+app.use((req, res, next) => {
+  res.status(404).send("Route not found");
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
 
 mongoose
   .connect(process.env.CONNECTION_URL)
