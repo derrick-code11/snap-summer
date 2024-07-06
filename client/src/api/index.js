@@ -1,5 +1,5 @@
 import axios from "axios";
-const url = "https://snap-summer-d53ae387f53b.herokuapp.com/posts";
+const url = "https://snap-summer-d53ae387f53b.herokuapp.com/api/v1/posts";
 
 export const fetchPosts = () => axios.get(url);
 export const createPost = (newPost) => axios.post(url, newPost);
