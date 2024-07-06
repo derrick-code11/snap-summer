@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import Posts from "./Posts.jsx";
 import Form from "./Form.jsx";
 import { useDispatch } from "react-redux";
-
 import { fetchPosts } from "../reducers/posts.js";
 const Feed = () => {
   const dispatch = useDispatch();
@@ -37,7 +36,7 @@ const Feed = () => {
                 setPostDeleted={setPostDeleted}
               ></Posts>
             </Grid>
-            <Grid item xs={12} sm={4}>
+            <Grid item xs={12} sm={4} marginTop={5}>
               <Form currentId={currentId} setCurrentId={setCurrentId}></Form>
             </Grid>
           </Grid>
