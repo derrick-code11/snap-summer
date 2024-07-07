@@ -1,26 +1,30 @@
 import { useEffect, useState } from "react";
-import image1 from "../images/image1.jpg";
-import image2 from "../images/image2.jpg";
-import image3 from "../images/image3.jpg";
-import image4 from "../images/image4.jpg";
+import dayImage from "../images/image4.jpg";
+import nightImage from "../images/image3.jpg";
 
 const Background = () => {
-  const images = [image1, image2, image3, image4];
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImage, setCurrentImage] = useState(dayImage);
+
+  const getCurrentImage = () => {
+    const currentHour = new Date().getHours();
+    return currentHour >= 6 && currentHour < 18 ? dayImage : nightImage;
+  };
 
   useEffect(() => {
+    setCurrentImage(getCurrentImage());
+
     const intervalId = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 36000);
+      setCurrentImage(getCurrentImage());
+    }, 3600000);
 
     return () => clearInterval(intervalId);
-  }, [images.length]);
+  }, []);
 
   return (
     <div
       className="background-image"
       style={{
-        backgroundImage: `url(${images[currentImageIndex]})`,
+        backgroundImage: `url(${currentImage})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",

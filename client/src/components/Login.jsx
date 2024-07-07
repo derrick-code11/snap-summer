@@ -7,6 +7,8 @@ import {
   Box,
   Typography,
   Container,
+  Snackbar,
+  Alert,
   IconButton,
   InputAdornment,
 } from "@mui/material";
@@ -14,11 +16,13 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
-import { FcGoogle } from "react-icons/fc";
+import GoogleLoginButton from "./GoogleLoginButton";
 
+const url = "https://snap-summer-d53ae387f53b.herokuapp.com/api/v1/auth/login";
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Required"),
   password: Yup.string()
@@ -28,29 +32,54 @@ const LoginSchema = Yup.object().shape({
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const navigate = useNavigate();
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = async (values, { setSubmitting }) => {
-    try {
-      const response = await axios.post("/api/login", values);
-      console.log(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-    setSubmitting(false);
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
   };
 
-  const handleGoogleLogin = () => {
-    console.log("Google login clicked");
-    // Implement Google login logic here
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      const response = await axios.post(url, values);
+      localStorage.setItem("token", response.data.token);
+      setSnackbarMessage("Login successful! Redirecting to dashboard...");
+      setSnackbarSeverity("success");
+      setOpenSnackbar(true);
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 3000);
+    } catch (error) {
+      console.error(error);
+      setSnackbarMessage("Login failed. Please try again.");
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+    }
+    setSubmitting(false);
   };
 
   return (
     <div className="background login">
       <Container component="main" maxWidth="xs">
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={snackbarSeverity}
+            sx={{ width: "100%" }}
+          >
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
         <Box
           sx={{
             marginTop: 8,
@@ -126,15 +155,7 @@ const Login = () => {
                 >
                   Sign In
                 </Button>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<FcGoogle />}
-                  sx={{ mb: 2 }}
-                  onClick={handleGoogleLogin}
-                >
-                  Login with Google
-                </Button>
+                <GoogleLoginButton buttonText="Sign Up with Google" />
                 <Grid container>
                   <Grid item xs>
                     <Link href="/forget-password" variant="body2">

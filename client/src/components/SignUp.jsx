@@ -7,17 +7,22 @@ import {
   Box,
   Typography,
   Container,
+  Snackbar,
+  Alert,
   IconButton,
   InputAdornment,
 } from "@mui/material";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
-import { FcGoogle } from "react-icons/fc";
+
+const url =
+  "https://snap-summer-d53ae387f53b.herokuapp.com/api/v1/auth/register";
 
 const SignUpSchema = Yup.object().shape({
   firstName: Yup.string()
@@ -37,30 +42,54 @@ const SignUpSchema = Yup.object().shape({
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const navigate = useNavigate();
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
-  // work on this later
-  const handleSubmit = async (values, { setSubmitting }) => {
-    try {
-      const response = await axios.post("/api/register", values);
-      console.log(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-    setSubmitting(false);
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
   };
 
-  const handleGoogleSignUp = () => {
-    console.log("Google sign-up clicked");
-    // Implement Google sign-up logic here
+  const handleSubmit = async (values, { setSubmitting }) => {
+    try {
+      const response = await axios.post(url, values);
+      localStorage.setItem("token", response.data.token);
+      setSnackbarMessage("Registration successful! Redirecting to login...");
+      setSnackbarSeverity("success");
+      setOpenSnackbar(true);
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
+    } catch (error) {
+      console.error(error);
+      setSnackbarMessage("Registration failed. Please try again.");
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
+    }
+    setSubmitting(false);
   };
 
   return (
     <div className="background signup">
       <Container component="main" maxWidth="xs">
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={snackbarSeverity}
+            sx={{ width: "100%" }}
+          >
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
         <Box
           sx={{
             marginTop: 8,
@@ -171,15 +200,6 @@ const SignUp = () => {
                   disabled={isSubmitting}
                 >
                   Sign Up
-                </Button>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<FcGoogle />}
-                  sx={{ mb: 2 }}
-                  onClick={handleGoogleSignUp}
-                >
-                  Sign Up with Google
                 </Button>
                 <Grid container justifyContent="flex-end">
                   <Grid item>

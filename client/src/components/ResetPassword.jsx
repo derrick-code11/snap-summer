@@ -8,9 +8,12 @@ import {
   Box,
   Typography,
   Container,
+  Snackbar,
+  Alert,
   IconButton,
   InputAdornment,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -18,7 +21,11 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 
+const url =
+  "https://snap-summer-d53ae387f53b.herokuapp.com/api/v1/auth/reset-password";
+
 const ResetPasswordSchema = Yup.object().shape({
+  email: Yup.string().email("Invalid email").required("Required"),
   password: Yup.string()
     .min(8, "Password is too short - should be 8 chars minimum.")
     .matches(
@@ -33,18 +40,38 @@ const ResetPasswordSchema = Yup.object().shape({
 
 const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const navigate = useNavigate();
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
-  // work on later
+  const handleClickShowConfirmPassword = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const response = await axios.post("/api/reset-password", values);
-      console.log(response.data);
+      const response = await axios.post(url, values);
+      localStorage.setItem("token", response.data.token);
+      setSnackbarMessage("Password reset successful! Redirecting to login...");
+      setSnackbarSeverity("success");
+      setOpenSnackbar(true);
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
     } catch (error) {
-      console.error(error);
+      setSnackbarMessage(error.response?.data?.message || "An error occurred");
+      setSnackbarSeverity("error");
+      setOpenSnackbar(true);
     }
     setSubmitting(false);
   };
@@ -52,6 +79,19 @@ const ResetPassword = () => {
   return (
     <div className="background login">
       <Container component="main" maxWidth="xs">
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={snackbarSeverity}
+            sx={{ width: "100%" }}
+          >
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
         <Box
           sx={{
             marginTop: 8,
@@ -68,6 +108,7 @@ const ResetPassword = () => {
           </Typography>
           <Formik
             initialValues={{
+              email: "",
               password: "",
               confirmPassword: "",
             }}
@@ -76,6 +117,19 @@ const ResetPassword = () => {
           >
             {({ errors, touched, isSubmitting }) => (
               <Form>
+                <Field
+                  as={TextField}
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  autoFocus
+                  helperText={touched.email ? errors.email : ""}
+                  error={touched.email && Boolean(errors.email)}
+                />
                 <Field
                   as={TextField}
                   margin="normal"
@@ -112,7 +166,7 @@ const ResetPassword = () => {
                   fullWidth
                   name="confirmPassword"
                   label="Confirm New Password"
-                  type={showPassword ? "text" : "password"}
+                  type={showConfirmPassword ? "text" : "password"}
                   id="confirmPassword"
                   autoComplete="new-password"
                   helperText={
@@ -126,13 +180,17 @@ const ResetPassword = () => {
                       <InputAdornment position="end">
                         <IconButton
                           aria-label="toggle password visibility"
-                          onClick={handleClickShowPassword}
+                          onClick={handleClickShowConfirmPassword}
                           onMouseDown={(e) => {
                             e.preventDefault();
                           }}
                           edge="end"
                         >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                          {showConfirmPassword ? (
+                            <VisibilityOff />
+                          ) : (
+                            <Visibility />
+                          )}
                         </IconButton>
                       </InputAdornment>
                     ),
