@@ -15,18 +15,6 @@ body {
 html {
   scroll-behavior: smooth;
 }
-@keyframes fade {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-.background-image {
-  animation: fade 0.5s ease-in-out;
-}
 
 .background {
   background-size: cover;
@@ -38,12 +26,13 @@ html {
   z-index: -1;
 }
 
-.home{
+.home {
   background-image: url("./images/home-background.svg");
   z-index: 1;
 }
 
-.signup, .login{
+.signup,
+.login {
   margin: 85px auto;
   z-index: 1;
   background-image: url("./images/login-background.svg");
