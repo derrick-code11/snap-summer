@@ -17,6 +17,8 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUser } from "../reducers/auth";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
@@ -36,6 +38,7 @@ const Login = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -48,10 +51,15 @@ const Login = () => {
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
       const response = await axios.post(url, values);
+      const user = response.data.user;
       localStorage.setItem("token", response.data.token);
+
       setSnackbarMessage("Login successful! Redirecting to dashboard...");
       setSnackbarSeverity("success");
       setOpenSnackbar(true);
+
+      dispatch(setUser(user));
+
       setTimeout(() => {
         navigate("/dashboard");
       }, 3000);
