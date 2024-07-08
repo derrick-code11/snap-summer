@@ -10,10 +10,10 @@ const Form = ({ currentId, setCurrentId }) => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const posts = useSelector((state) => state.posts.items);
+  const user = useSelector((state) => state.auth.user);
   const post = currentId ? posts.find((post) => post._id === currentId) : null;
 
   const [postData, setPostData] = useState({
-    creator: "",
     title: "",
     message: "",
     tags: "",
@@ -29,7 +29,6 @@ const Form = ({ currentId, setCurrentId }) => {
   const clear = () => {
     setCurrentId(null);
     setPostData({
-      creator: "",
       title: "",
       message: "",
       tags: "",
@@ -43,7 +42,7 @@ const Form = ({ currentId, setCurrentId }) => {
     if (currentId) {
       dispatch(updateOldPost({ id: currentId, updatedPost: postData }));
     } else {
-      dispatch(addPost(postData));
+      dispatch(addPost({ ...postData, creator: user?.firstName }));
     }
     clear();
   };
@@ -60,6 +59,7 @@ const Form = ({ currentId, setCurrentId }) => {
       };
     });
   };
+
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     const base64 = await convertToBase64(file);
@@ -91,16 +91,6 @@ const Form = ({ currentId, setCurrentId }) => {
               ? "Editing an experience"
               : "Share your summer experiences"}
           </Typography>
-          <TextField
-            name="creator"
-            variant="outlined"
-            label="Creator"
-            fullWidth
-            value={postData.creator}
-            onChange={(e) =>
-              setPostData({ ...postData, creator: e.target.value })
-            }
-          ></TextField>
 
           <TextField
             name="title"
@@ -118,6 +108,8 @@ const Form = ({ currentId, setCurrentId }) => {
             variant="outlined"
             label="Message"
             fullWidth
+            multiline
+            rows={4}
             value={postData.message}
             onChange={(e) =>
               setPostData({ ...postData, message: e.target.value })
@@ -127,10 +119,12 @@ const Form = ({ currentId, setCurrentId }) => {
           <TextField
             name="tags"
             variant="outlined"
-            label="Tags"
+            label="Tags (comma separated)"
             fullWidth
             value={postData.tags}
-            onChange={(e) => setPostData({ ...postData, tags: e.target.value.split(',')})}
+            onChange={(e) =>
+              setPostData({ ...postData, tags: e.target.value.split(",") })
+            }
           ></TextField>
           <div style={{ width: "97%", margin: "10px 0" }}>
             <input
