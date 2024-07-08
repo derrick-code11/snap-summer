@@ -7,15 +7,19 @@ import {
   useTheme,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logout } from "../reducers/auth";
 import logo from "../images/camera.png";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   // work on this later (if necessary)
   const handleLogout = () => {
+    dispatch(logout());
     navigate("/");
   };
 
@@ -28,7 +32,7 @@ const Navbar = () => {
         justifyContent: "space-between",
         alignItems: "center",
         backgroundColor: "white",
-        width: "100%"
+        width: "100%",
       }}
       position="relative"
       color="inherit"
