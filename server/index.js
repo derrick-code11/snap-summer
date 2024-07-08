@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import postRoutes from "./routes/posts.js";
-import authRoutes from './routes/authRoutes.js';
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -24,7 +24,7 @@ app.get("/api/v1", (req, res) => {
 });
 
 app.use("/api/v1/posts", postRoutes);
-app.use('/api/v1/auth', authRoutes);
+app.use("/api/v1/auth", authRoutes);
 
 // Catch-all route for undefined routes
 app.use((req, res, next) => {

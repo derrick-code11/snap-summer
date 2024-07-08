@@ -49,9 +49,13 @@ export const register = async (req, res) => {
     await newUser.save();
 
     // Generate JWT
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: newUser._id, firstName: newUser.firstName },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
     res
       .status(200)
@@ -72,9 +76,13 @@ export const login = async (req, res) => {
     if (!isPasswordCorrect)
       return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: user._id, firstName: user.firstName },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
     res
       .status(200)
@@ -104,9 +112,13 @@ export const resetPassword = async (req, res) => {
     user.password = hashedPassword;
     await user.save();
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { id: user._id, firstName: user.firstName },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
     res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
@@ -133,9 +145,13 @@ export const googleSignIn = async (req, res) => {
       await user.save();
     }
 
-    const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const jwtToken = jwt.sign(
+      { id: user._id, firstName: user.firstName },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
     res.status(200).json({ token: jwtToken, user });
   } catch (error) {
     res.status(400).json({ message: "Invalid Google token" });

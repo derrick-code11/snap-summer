@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import PostMessage from "../models/postMessage.js";
+import User from "../models/User.js";
 
 export const getPosts = async (req, res) => {
   try {
@@ -11,35 +12,48 @@ export const getPosts = async (req, res) => {
 };
 
 export const createPost = async (req, res) => {
-  const { title, message, selectedFile, creator, tags } = req.body;
-
-  const newPostMessage = new PostMessage({
-    title,
-    message,
-    selectedFile,
-    creator,
-    tags,
-  });
+  const post = req.body;
+  const userId = req.userId;
 
   try {
-    await newPostMessage.save();
+    const user = await User.findById(userId);
 
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const newPostMessage = new PostMessage({
+      ...post,
+      creator: user.firstName,
+      createdAt: new Date().toISOString(),
+    });
+
+    await newPostMessage.save();
     res.status(201).json(newPostMessage);
   } catch (error) {
     res.status(409).json({ message: error.message });
   }
 };
-
 export const updateOldPost = async (req, res) => {
   const { id } = req.params;
-  const { title, message, creator, selectedFile, tags } = req.body;
+  const { title, message, selectedFile, tags } = req.body;
+  const userId = req.userId;
 
   if (!mongoose.Types.ObjectId.isValid(id))
     return res.status(404).send(`No post with id: ${id}`);
 
-  const updatedPost = { creator, title, message, tags, selectedFile, _id: id };
-
   try {
+    const post = await PostMessage.findById(id);
+    const user = await User.findById(userId);
+
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    if (userId !== String(user._id)) {
+      return res
+        .status(403)
+        .json({ message: "You do not have permission to edit this post" });
+    }
+
+    const updatedPost = { title, message, tags, selectedFile, _id: id };
+
     const result = await PostMessage.findByIdAndUpdate(id, updatedPost, {
       new: true,
     });
@@ -51,41 +65,60 @@ export const updateOldPost = async (req, res) => {
 
 export const deletePost = async (req, res) => {
   const { id } = req.params;
+  const userId = req.userId;
 
-  // Check if the provided ID is valid
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(404).send(`No post with id: ${id}`);
   }
 
   try {
-    // Attempt to delete the post by ID
-    const deletedPost = await PostMessage.findByIdAndDelete(id);
+    const post = await PostMessage.findById(id);
+    const user = await User.findById(userId);
 
-    // Check if the post was found and deleted
-    if (!deletedPost) {
-      return res.status(404).send(`No post with id: ${id}`);
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
     }
 
+    if (userId !== String(user._id)) {
+      return res
+        .status(403)
+        .json({ message: "You do not have permission to delete this post" });
+    }
+
+    await PostMessage.findByIdAndDelete(id);
     res.json({ message: "Post deleted successfully." });
   } catch (error) {
-    // Handle any errors during the deletion process
     res.status(500).json({ message: error.message });
   }
 };
 
 export const likePost = async (req, res) => {
   const { id } = req.params;
+  const userId = req.userId;
 
-  if (!mongoose.Types.ObjectId.isValid(id))
-    return res.status(404).send(`No post with id: ${id}`);
+  console.log(id, userId);
 
-  const post = await PostMessage.findById(id);
+  if (!userId) return res.status(401).json({ message: "Unauthenticated" });
 
-  const updatedPost = await PostMessage.findByIdAndUpdate(
-    id,
-    { likeCount: post.likeCount + 1 },
-    { new: true }
-  );
+  try {
+    const post = await PostMessage.findById(id);
 
-  res.json(updatedPost);
+    const index = post.likes.findIndex((id) => id === String(userId));
+
+    if (index === -1) {
+      post.likes.push(userId);
+      post.likeCount++;
+    } else {
+      post.likes = post.likes.filter((id) => id !== String(userId));
+      post.likeCount--;
+    }
+
+    const updatedPost = await PostMessage.findByIdAndUpdate(id, post, {
+      new: true,
+    });
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
 };
