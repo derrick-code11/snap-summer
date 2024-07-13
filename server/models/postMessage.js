@@ -1,5 +1,18 @@
 import mongoose from "mongoose";
 
+const commentSchema = mongoose.Schema({
+  text: String,
+  createdAt: {
+    type: Date,
+    default: new Date(),
+  },
+  user: {
+    id: String,
+    firstName: String,
+    lastName: String,
+  },
+});
+
 const postSchema = mongoose.Schema({
   title: String,
   message: String,
@@ -14,6 +27,8 @@ const postSchema = mongoose.Schema({
     type: [String],
     default: [],
   },
+  creatorId: String,
+  comments: [commentSchema],
   createdAt: {
     type: Date,
     default: new Date().toISOString(),
