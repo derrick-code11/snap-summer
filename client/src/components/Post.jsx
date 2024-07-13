@@ -59,7 +59,7 @@ const Post = ({ post, setCurrentId, setPostDeleted }) => {
         position: "relative",
       }}
     >
-      <Box onClick={handleCardClick} sx={{ cursor: "pointer" }}>
+      <Box sx={{ cursor: "pointer" }}>
         <CardMedia
           sx={{
             height: 0,
@@ -121,6 +121,7 @@ const Post = ({ post, setCurrentId, setPostDeleted }) => {
           gutterBottom
           variant="h5"
           component="h2"
+          onClick={handleCardClick}
         >
           {post.title}
         </Typography>
