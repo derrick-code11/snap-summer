@@ -22,7 +22,7 @@ import { setUser } from "../reducers/auth";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
-import GoogleLoginButton from "./GoogleLoginButton";
+// import GoogleLoginButton from "./GoogleLoginButton";
 
 const url = "https://snap-summer-d53ae387f53b.herokuapp.com/api/v1/auth/login";
 const LoginSchema = Yup.object().shape({
@@ -163,10 +163,10 @@ const Login = () => {
                 >
                   Sign In
                 </Button>
-                <GoogleLoginButton buttonText="Sign Up with Google" />
+                {/* <GoogleLoginButton buttonText="Sign Up with Google" /> */}
                 <Grid container>
                   <Grid item xs>
-                    <Link href="/forget-password" variant="body2">
+                    <Link href="/request-reset" variant="body2">
                       Forgot password?
                     </Link>
                   </Grid>

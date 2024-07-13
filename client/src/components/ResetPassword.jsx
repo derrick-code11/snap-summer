@@ -13,7 +13,7 @@ import {
   IconButton,
   InputAdornment,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -25,7 +25,6 @@ const url =
   "https://snap-summer-d53ae387f53b.herokuapp.com/api/v1/auth/reset-password";
 
 const ResetPasswordSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Required"),
   password: Yup.string()
     .min(8, "Password is too short - should be 8 chars minimum.")
     .matches(
@@ -39,6 +38,7 @@ const ResetPasswordSchema = Yup.object().shape({
 });
 
 const ResetPassword = () => {
+  const { token } = useParams();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -60,8 +60,7 @@ const ResetPassword = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     try {
-      const response = await axios.post(url, values);
-      localStorage.setItem("token", response.data.token);
+     await axios.post(`${url}/${token}`, values);
       setSnackbarMessage("Password reset successful! Redirecting to login...");
       setSnackbarSeverity("success");
       setOpenSnackbar(true);
@@ -108,7 +107,6 @@ const ResetPassword = () => {
           </Typography>
           <Formik
             initialValues={{
-              email: "",
               password: "",
               confirmPassword: "",
             }}
@@ -117,19 +115,6 @@ const ResetPassword = () => {
           >
             {({ errors, touched, isSubmitting }) => (
               <Form>
-                <Field
-                  as={TextField}
-                  margin="normal"
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
-                  autoFocus
-                  helperText={touched.email ? errors.email : ""}
-                  error={touched.email && Boolean(errors.email)}
-                />
                 <Field
                   as={TextField}
                   margin="normal"
