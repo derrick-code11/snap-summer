@@ -6,7 +6,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../reducers/auth";
 import logo from "../images/camera.png";
@@ -17,7 +17,6 @@ const Navbar = () => {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // work on this later (if necessary)
   const handleLogout = () => {
     dispatch(logout());
     navigate("/");
@@ -39,14 +38,16 @@ const Navbar = () => {
     >
       <Grid container alignItems="center">
         <Grid item>
-          <img
-            style={{
-              marginRight: "10px",
-            }}
-            src={logo}
-            alt="app logo"
-            height={40}
-          />
+          <Link to="/dashboard">
+            <img
+              style={{
+                marginRight: "10px",
+              }}
+              src={logo}
+              alt="app logo"
+              height={40}
+            />
+          </Link>
         </Grid>
         <Grid item>
           <Typography
