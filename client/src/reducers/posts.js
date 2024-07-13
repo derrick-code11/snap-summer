@@ -5,6 +5,9 @@ import {
   updatePost as updatePostAPI,
   deletePost as deletePostAPI,
   likePost as likePostAPI,
+  fetchPostById as fetchPostByIdAPI,
+  addCommentToPost as addCommentAPI,
+  deleteCommentToPost as deleteCommentAPI,
 } from "../api";
 
 // Define the async thunk for fetching all posts
@@ -12,6 +15,15 @@ export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
   const response = await fetchPostsAPI();
   return response.data;
 });
+
+// Define the asyn thunk for fetching only one post
+export const fetchPostById = createAsyncThunk(
+  "posts/fetchPostById",
+  async (id) => {
+    const response = await fetchPostByIdAPI(id);
+    return response.data;
+  }
+);
 
 // Define the async thunk for creating a post
 export const addPost = createAsyncThunk("posts/addPost", async (newPost) => {
@@ -40,11 +52,32 @@ export const likePost = createAsyncThunk("posts/likePost", async (id) => {
   return response.data;
 });
 
+// Define the async thunk for adding a comment
+export const addComment = createAsyncThunk(
+  "posts/addComment",
+  async ({ postId, comment }) => {
+    const response = await addCommentAPI(postId, comment);
+    console.log(response.data);
+    return response.data;
+  }
+);
+
+// Define the async thunk for deleting a comment
+export const deleteComment = createAsyncThunk(
+  "posts/deleteComment",
+  async ({ postId, commentId }) => {
+    const response = await deleteCommentAPI(postId, commentId);
+    return response.data;
+  }
+);
+
 const postsSlice = createSlice({
   name: "posts",
   initialState: {
     items: [],
     status: "idle",
+    post: null,
+    isLoading: false,
     error: null,
   },
   reducers: {},
@@ -108,6 +141,22 @@ const postsSlice = createSlice({
         if (index !== -1) {
           state.items[index] = action.payload;
         }
+      })
+      .addCase(fetchPostById.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchPostById.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.post = action.payload;
+      })
+      .addCase(fetchPostById.rejected, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(addComment.fulfilled, (state, action) => {
+        state.post = action.payload;
+      })
+      .addCase(deleteComment.fulfilled, (state, action) => {
+        state.post = action.payload;
       });
   },
 });

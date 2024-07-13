@@ -8,6 +8,14 @@ export const fetchPosts = () =>
       Authorization: `Bearer ${token}`,
     },
   });
+
+export const fetchPostById = (id) =>
+  axios.get(`${url}/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
 export const createPost = (newPost) =>
   axios.post(url, newPost, {
     headers: {
@@ -31,6 +39,24 @@ export const deletePost = (id) =>
 
 export const likePost = (id) =>
   axios.patch(`${url}/${id}/likePost`, null, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+export const addCommentToPost = (id, comment) =>
+  axios.post(
+    `${url}/${id}/comment`,
+    { comment },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+export const deleteCommentToPost = (id, commentId) =>
+  axios.delete(`${url}/${id}/comment/${commentId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
