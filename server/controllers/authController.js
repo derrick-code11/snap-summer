@@ -1,9 +1,16 @@
 import User from "../models/User.js";
+import nodemailer from "nodemailer";
 import validator from "validator";
+import crypto from "crypto";
+import Token from "../models/Token.js";
+import dotenv from "dotenv";
 import { OAuth2Client } from "google-auth-library";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+dotenv.config();
+
+// user registration
 export const register = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
 
@@ -65,6 +72,7 @@ export const register = async (req, res) => {
   }
 };
 
+// user login
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -92,25 +100,73 @@ export const login = async (req, res) => {
   }
 };
 
-export const resetPassword = async (req, res) => {
-  const { email, confirmPassword } = req.body;
-
-  if (!email || !confirmPassword) {
-    return res
-      .status(400)
-      .json({ message: "Please provide your email and new password" });
-  }
+// request password reset link
+export const requestPasswordReset = async (req, res) => {
+  const { email } = req.body;
 
   try {
     const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // Generate token
+    const token = crypto.randomBytes(32).toString("hex");
+    const newToken = new Token({
+      userId: user._id,
+      token,
+      createdAt: Date.now(),
+    });
+
+    await newToken.save();
+
+    // Send email
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: "Password Reset Request",
+      text: `You requested a password reset. Please click the following link to reset your password: ${process.env.FRONTEND_URL}/reset-password/${token}. Links expires in 30 minutes`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: "Reset link sent to your email." });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { confirmPassword } = req.body;
+  const { linkToken } = req.params;
+
+  if (!confirmPassword) {
+    return res
+      .status(400)
+      .json({ message: "Please provide your new password" });
+  }
+
+  try {
+    const tokenDoc = await Token.findOne({ linkToken });
+
+    if (!tokenDoc)
+      return res.status(400).json({ message: "Invalid or expired token" });
+
+    const user = await User.findById(tokenDoc.userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     // Hash the new password
     const hashedPassword = await bcrypt.hash(confirmPassword, 10);
     user.password = hashedPassword;
     await user.save();
+
+    await Token.findByIdAndDelete(tokenDoc._id);
 
     const token = jwt.sign(
       { id: user._id, firstName: user.firstName },
@@ -126,6 +182,7 @@ export const resetPassword = async (req, res) => {
   }
 };
 
+// google sign-in
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const googleSignIn = async (req, res) => {
