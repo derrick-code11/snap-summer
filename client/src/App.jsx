@@ -21,6 +21,7 @@ function App() {
       const user = {
         id: decodedToken.id,
         firstName: decodedToken.firstName,
+        lastName: decodedToken.lastNameName,
       };
       dispatch(setUser(user));
     }
